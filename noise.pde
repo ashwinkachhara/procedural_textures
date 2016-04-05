@@ -119,4 +119,36 @@ double fade(double t) {
 }
 
 
+//float turbulence(float x, float y, float z, float size)
+//{
+//  float value = 0.0, initialSize = size;
+  
+//  x = x+123.456;
 
+//  while(size >= 1)
+//  {
+//    value += (1+noise_3d(x / size, y / size, z / size)) * 0.5 * size;
+//    size /= 2.0;
+//  }
+
+//  return(128.0 * value / initialSize);
+//}
+
+float turbulence(float x, float y, float z, float size){
+  float noise = 0;
+  float nx = x + 123.456;
+  float ny = y; float nz = z;
+  
+  float minF = 1.0;
+  float maxF = 600*size;
+  float f;
+  
+  for( f = minF; f < maxF; f = f*2.0 ) {
+    noise = noise + (1.0/f)*abs( noise_3d(nx, ny, nz) );
+    nx = nx*2.0;
+    ny = ny*2.0;
+    nz = nz*2.0;    
+  }
+  
+  return noise -.3;
+}

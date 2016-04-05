@@ -1,7 +1,8 @@
-class Polygon extends Shape{
+class Polygon extends Geometry{
   PVector A,B,C,n;
   PVector Ca = new PVector();
   PVector Cd = new PVector();
+  boolean moving;
   
   Polygon(PVector a, PVector b, PVector c, PVector ka, PVector kd){
     A = a;
@@ -12,6 +13,39 @@ class Polygon extends Shape{
     n = new PVector(0,0,0);
     PVector.cross(PVector.sub(B,A),PVector.sub(C,B), n);
     n.normalize();
+    moving = false;
+  }
+  
+  Polygon(PVector a, PVector b, PVector c, PVector ka, PVector kd, boolean m){
+    A = a;
+    B = b;
+    C = c;
+    Ca = ka.copy();
+    Cd = kd.copy();
+    n = new PVector(0,0,0);
+    PVector.cross(PVector.sub(B,A),PVector.sub(C,B), n);
+    n.normalize();
+    moving = m;
+  }
+  
+  PVector getPMax(){
+    return new PVector(max(A.x,B.x,C.x),max(A.y,B.y,C.y),max(A.z,B.z,C.z));
+  }
+  
+  PVector getPMin(){
+    return new PVector(min(A.x,B.x,C.x),min(A.y,B.y,C.y),min(A.z,B.z,C.z));
+  }
+  
+  PVector getM1d(PVector d, PVector P){
+    return d;
+  }
+  
+  PVector getM1P(PVector P){
+    return P;
+  }
+  
+  PVector getMP(PVector P){
+    return P;
   }
   
   float intersects(PVector d, PVector P){
@@ -42,28 +76,37 @@ class Polygon extends Shape{
     
     return -1000;
   }
+  
+  float intersects(PVector d, PVector P, float t){
+    return -1000;
+  }
   PVector getNormal(PVector P){
+    return n;
+  }
+  PVector getNormal(PVector P, float t){
     return n;
   }
   PVector calcDiffuse(PVector P, PVector n, int l){
     PVector col = new PVector(0,0,0);
-    PVector L = PVector.sub(lights[l].pos,P);
+    PVector L = lights[l].vec2Light(P);//PVector.sub(lights[l].pos,P);
     L.normalize();
     if (PVector.dot(L,n) < 0){
       n.x = -n.x;
       n.y = -n.y;
       n.z = -n.z;
     }
-    col.x = Cd.x*(PVector.dot(L,n))*lights[l].lColor.x;
-    col.y = Cd.y*(PVector.dot(L,n))*lights[l].lColor.y;
-    col.z = Cd.z*(PVector.dot(L,n))*lights[l].lColor.z;
+    PVector lColor = lights[l].getColor();
+    col.x = Cd.x*(PVector.dot(L,n))*lColor.x;
+    col.y = Cd.y*(PVector.dot(L,n))*lColor.y;
+    col.z = Cd.z*(PVector.dot(L,n))*lColor.z;
     return col;
   }
   PVector calcAmbient(int l){
     PVector col = new PVector(0,0,0);
-    col.x = Ca.x*lights[l].lColor.x;
-    col.y = Ca.y*lights[l].lColor.y;
-    col.z = Ca.z*lights[l].lColor.z;
+    PVector lColor = lights[l].getColor();
+    col.x = Ca.x*lColor.x;
+    col.y = Ca.y*lColor.y;
+    col.z = Ca.z*lColor.z;
     return col;
   }
   
@@ -71,5 +114,9 @@ class Polygon extends Shape{
     println("A: "+A.x+" "+A.y+" "+A.z);
     println("B: "+B.x+" "+B.y+" "+B.z);
     println("C: "+C.x+" "+C.y+" "+C.z);
+  }
+  
+  boolean isMoving(){
+    return moving;
   }
 }

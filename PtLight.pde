@@ -1,4 +1,4 @@
-class PtLight{
+class PtLight extends Light{
   PVector pos = new PVector();
   PVector lColor = new PVector();
   
@@ -10,13 +10,30 @@ class PtLight{
   PtLight(){
   }
   
-  boolean visible(PVector pt, PVector normal, int obIndex){
+  PVector vec2Light(PVector P){
+    return PVector.sub(pos,P);
+  }
+  
+  PVector getColor(){
+    return lColor;
+  }
+  
+  float visible(PVector pt, PVector normal, int obIndex){
     PVector v1 = PVector.sub(pos,pt);
     float d = v1.dot(normal);
     //return d>0;
     
+    if (objects[obIndex] instanceof Polygon && d<0){
+      normal = PVector.sub(new PVector(0,0,0),normal);
+      d = v1.dot(normal);
+    }
+    
     if (d<0)
-      return (objects[obIndex] instanceof Polygon);
+      return 0.0;
+      //if (objects[obIndex] instanceof Polygon)
+      //  return 1.0;
+      //else
+      //  return 0.0;
     else{
       boolean found = false;
      for (int o=0;o<numObjects;o++){
@@ -29,9 +46,9 @@ class PtLight{
        }
      }
      if (found)
-       return false;
+       return 0.0;
      else
-       return true;
+       return 1.0;
     }
   }
 }

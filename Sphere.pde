@@ -8,6 +8,8 @@ class Sphere extends Geometry{
   
   int noiseScale;
   int noiseType;
+  
+  WorleyNoise wn = new WorleyNoise();
   // -1: nothing, 0 - perlin noise, 1 - wood, 2 - marble, 3 - stone
   
   Sphere(PVector p, float r, PVector ka, PVector kd, int nscale, int type){
@@ -18,6 +20,7 @@ class Sphere extends Geometry{
     moving = false;
     noiseScale = nscale;
     noiseType = type;
+    wn.init(pos,radius,5);
   }
   
   Sphere(PVector p, float r, PVector ka, PVector kd, boolean m, PVector p1, PVector p2){
@@ -167,6 +170,31 @@ class Sphere extends Geometry{
         return col;
         
       case 3:
+        PVector stoneColor = new PVector(0.82, 0.41, 0.12), cementColor = new PVector(1,1,1);
+        
+        float worley = wn.getNoise(P);
+        
+        //println(worley);
+        
+        if (worley > 0.05){
+          int seed = wn.getMinIndex();
+          perlinNoise = noise_3d(P.x,P.y,P.z);
+          perlinNoise = (perlinNoise + 1.0)/2;
+          col.x = (stoneColor.x)*(PVector.dot(L,n))*lColor.x;
+          col.y = (stoneColor.y+0.25*perlinNoise)*(PVector.dot(L,n))*lColor.y*perlinNoise;
+          col.z = (stoneColor.z)*(PVector.dot(L,n))*lColor.z*perlinNoise;
+          return col;
+        } else {
+          perlinNoise = noise_3d(P.x*100,P.y*100,P.z*100);
+          perlinNoise = (perlinNoise + 1.0)/2.0;
+          col.x = cementColor.x*(PVector.dot(L,n))*lColor.x*perlinNoise;
+          col.y = cementColor.y*(PVector.dot(L,n))*lColor.y*perlinNoise;
+          col.z = cementColor.z*(PVector.dot(L,n))*lColor.z*perlinNoise;
+          return col;
+        }
+          
+        
+        
     }
     return col;
     

@@ -119,34 +119,55 @@ double fade(double t) {
 }
 
 
-float turbulence(float x, float y, float z, float size)
-{
-float value = 0.0;
-
-while(size >= 1)
-{
-  value += abs(noise_3d(x * size, y * size, z * size)) / size;
-  size /= 2.0;
+float turbulence(float x, float y, float z, float size){
+  float value = 0.0;
+  
+  while(size >= 1){
+    value += abs(noise_3d(x * size, y * size, z * size)) / size;
+    size /= 2.0;
+  }
+  
+  return value;
 }
 
-return value;
+class WorleyNoise{
+  ArrayList<PVector> features;
+  int minIndex;
+  WorleyNoise(){
+    
+  }
+  void init (PVector pos, float radius, int featuresPerAxis){
+    float minX = pos.x-radius, maxX = pos.x+radius;
+    float minY = pos.y-radius, maxY = pos.y+radius;
+    float minZ = pos.z-radius, maxZ = pos.z+radius;
+    features = new ArrayList<PVector>();
+    float step = 2*radius/featuresPerAxis;
+    
+    for (int i=0; i<featuresPerAxis; i++){
+      for (int j=0; j<featuresPerAxis; j++){
+        for (int k=0; k<featuresPerAxis; k++){
+          features.add(new PVector(random(minX+i*step,minX+(1+i)*step),random(minY+j*step,minY+(1+j)*step),random(minZ+k*step,minZ+(1+k)*step)));
+        }
+      }
+    }
+  }
+  
+  float getNoise(PVector pt){
+    float minDist = 1; minIndex = 0;
+    float min2Dist = 1;
+    
+    for (int i=0; i<features.size();i++){
+      float d = PVector.dist(pt,features.get(i));
+      if (d<minDist){
+        min2Dist = minDist;
+        minDist = d;
+        minIndex = i;
+      }
+    }
+    return min2Dist - minDist;
+  }
+  
+  int getMinIndex(){
+    return minIndex;
+  }
 }
-
-//float turbulence(float x, float y, float z, float size){
-//  float noise = 0;
-//  float nx = x;
-//  float ny = y; float nz = z;
-  
-//  float minF = 1.0;
-//  float maxF = 600*size;
-//  float f;
-  
-//  for( f = minF; f < maxF; f = f*2.0 ) {
-//    noise = noise + (1.0/f)*abs( noise_3d(nx, ny, nz) );
-//    nx = nx*2.0;
-//    ny = ny*2.0;
-//    nz = nz*2.0;    
-//  }
-  
-//  return noise - 0.3;
-//}

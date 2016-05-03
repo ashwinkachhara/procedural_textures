@@ -126,6 +126,7 @@ class Sphere extends Geometry{
     float turbSize;
     float sinValue;
     
+    // INSPIRATION FROM http://lodev.org/cgtutor/randomnoise.html
     switch(noiseType){
       case -1:
         col.x = Cd.x*(PVector.dot(L,n))*lColor.x;
